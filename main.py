@@ -69,17 +69,16 @@ class Graph :
 class Vehicle :
 	# a vehicle is composed of a type, and a zipcode telling where it is located on the graph
 
-	def __init__(self, t, x, y, i) :
+	def __init__(self, t, v, i) :
 
 		self.type = t
-		self.x = x
-		self.y = y
+		self.vertex = v
 
 		self.id = i
 
 	def distance(self, vertex) :
 
-		return round(math.sqrt(math.pow(self.x - vertex.x, 2) + math.pow(self.y - vertex.y, 2)))
+		return round(math.sqrt(math.pow(self.vertex.x - vertex.x, 2) + math.pow(self.vertex.y - vertex.y, 2)))
 
 
 #random generation of zipcodes
@@ -118,7 +117,7 @@ for i in range(200) :
 
 	randomVertex = random.choice(verticesCopy)
 
-	vehicles.append(Vehicle(random.randint(1,3), randomVertex.x, randomVertex.y, i))
+	vehicles.append(Vehicle(random.randint(1,3), randomVertex, i))
 
 	verticesCopy.remove(randomVertex)
 
@@ -156,51 +155,88 @@ police = list(filter(lambda v: v.type == 3, vehicles))
 
 print("{:10}{:10}{:10}{:10}".format("V-Type", "Zipcode", "V-Id", "Distance"))
 
+totalDistance = 0
+
 for r in requests :
+
+	
 
 	if r.vehicleType == 1 :
 		# if the vehicle is an ambulance
 
-		# sort ambulances by their distance to the location of the request ascending
-		ambulances.sort(key = lambda v: v.distance(r.vertex))
+		closest = 0
+
+		
+		for i, a in enumerate(ambulances) :
+			# finding the closest ambulance to the requested location
+
+			if a.distance(r.vertex) < ambulances[closest].distance(r.vertex) :
+
+				closest = i
+		
+
 
 		# select the closest ambulance to the request location
-		responses.append(Response(r.vertex, ambulances[0]))
+		responses.append(Response(r.vertex, ambulances[closest]))
 
 		# output the result to the console
 		print(responses[-1])
 
-		ambulances.pop(0)
+		totalDistance += ambulances[closest].distance(r.vertex)
+
+		ambulances.pop(closest)
 
 	elif r.vehicleType == 2 :
 		#if the vehicle is a firetruck
 
 
-		# sort firetrucks by their distance to the location of the request ascending
-		firetrucks.sort(key = lambda v: v.distance(r.vertex))
+		closest = 0
 
-		# select the closest firetruck to the request location
-		responses.append(Response(r.vertex, firetrucks[0]))
+		
+		for i, a in enumerate(firetrucks) :
+			# finding the closest firetruck to the requested location
+
+			if a.distance(r.vertex) < firetrucks[closest].distance(r.vertex) :
+
+				closest = i
+		
+
+		# select the closest ambulance to the request location
+		responses.append(Response(r.vertex, firetrucks[closest]))
 
 		# output the result to the console
 		print(responses[-1])
 
-		firetrucks.pop(0)
+		totalDistance += firetrucks[closest].distance(r.vertex)
+
+		firetrucks.pop(closest)
 
 	elif r.vehicleType == 3 :
 		#if the vehicle is a police car
 
-		# sort police by their distance to the location of the request ascending
-		police.sort(key = lambda v: v.distance(r.vertex))
+		closest = 0
 
-		# select the closest police car to the request location
-		responses.append(Response(r.vertex, police[0]))
+		
+		for i, a in enumerate(police) :
+			# finding the closest police car to the requested location
+
+			if a.distance(r.vertex) < police[closest].distance(r.vertex) :
+
+				closest = i
+		
+
+
+		# select the closest ambulance to the request location
+		responses.append(Response(r.vertex, police[closest]))
 
 		# output the result to the console
 		print(responses[-1])
 
-		police.pop(0)
+		totalDistance += police[closest].distance(r.vertex)
 
+		police.pop(closest)
+
+print("Total Distance traveled by all Vehicles:", totalDistance)
 # plotting the path taken by each vehicle to their request location
 for response in responses :
 	
@@ -217,7 +253,7 @@ for response in responses :
 		c = "blue"
 
 
-	plt.plot([response.vehicle.x, response.vertex.x], [response.vehicle.y, response.vertex.y], color = c)
+	plt.plot([response.vehicle.vertex.x, response.vertex.x], [response.vehicle.vertex.y, response.vertex.y], color = c)
 
 
 
@@ -244,18 +280,18 @@ for v in vehicles :
 
 	if v.type == 1 :
 
-		ambulanceX.append(v.x)
-		ambulanceY.append(v.y)
+		ambulanceX.append(v.vertex.x)
+		ambulanceY.append(v.vertex.y)
 
 	elif v.type == 2 :
 
-		firetruckX.append(v.x)
-		firetruckY.append(v.y)
+		firetruckX.append(v.vertex.x)
+		firetruckY.append(v.vertex.y)
 
 	elif v.type == 3 :
 
-		policeX.append(v.x)
-		policeY.append(v.y)
+		policeX.append(v.vertex.x)
+		policeY.append(v.vertex.y)
 
 
 
